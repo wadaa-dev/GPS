@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html lang="ar">
+<head>
+  <meta charset="UTF-8" />
+  <title>إعدادات الأطفال</title>
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <div class="container">
+    <h2>إضافة طفل</h2>
+    <form id="childForm">
+      <input type="text" id="childName" placeholder="اسم الطفل" required />
+      <input type="number" id="childAge" placeholder="العمر" required />
+      <button type="submit">إضافة</button>
+    </form>
+
+    <h3>الأطفال المسجلين</h3>
+    <ul id="childList"></ul>
+  </div>
+  <script>
+    const form = document.getElementById('childForm');
+    const list = document.getElementById('childList');
+
+    form.onsubmit = e => {
+      e.preventDefault();
+      const name = document.getElementById('childName').value;
+      const age = document.getElementById('childAge').value;
+
+      fetch('/add-child', {
+        method: 'POST',
+        headers: {'Content-Type': 'application/json'},
+        body: JSON.stringify({ name, age })
+      }).then(() => {
+        form.reset();
+        loadChildren();
+      });
+    };
+
+    function loadChildren() {
+      fetch('/children')
+        .then(res => res.json())
+        .then(children => {
+          list.innerHTML = '';
+          children.forEach(child => {
+            const li = document.createElement('li');
+            li.textContent = `${child.name} (العمر: ${child.age})`;
+            list.appendChild(li);
+          });
+        });
+    }
+
+    loadChildren();
+  </script>
+</body>
+</html>

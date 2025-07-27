@@ -1,0 +1,198 @@
+<!DOCTYPE html>
+<html lang="ar">
+<head>
+  <meta charset="UTF-8" />
+  <title>تتبع الطفل</title>
+  <style>
+    :root {
+      --primary-start: #43cea2;
+      --primary-end: #185a9d;
+      --bg-light: #f4f7fc;
+      --card-bg: rgba(255, 255, 255, 0.85);
+      --text-dark: #333;
+      --text-light: #fff;
+      --input-bg: #eef3f8;
+      --btn-hover: #2bc0e4;
+      --success-green: #28a745;
+    }
+    body {
+      background: linear-gradient(to right, var(--primary-start), var(--primary-end));
+      color: var(--text-dark);
+      font-family: 'Segoe UI', sans-serif;
+      margin: 0;
+      padding: 0;
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    .tracking-container {
+      background: var(--card-bg);
+      backdrop-filter: blur(10px);
+      border-radius: 12px;
+      box-shadow: 0 8px 24px rgba(0,0,0,0.1);
+      padding: 24px;
+      width: 360px;
+      max-width: 90%;
+      text-align: center;
+    }
+    .tracking-container h2 {
+      margin-bottom: 20px;
+      color: var(--text-dark);
+    }
+    .tracking-container input[type="text"],
+    .tracking-container input[type="number"],
+    .tracking-container input[type="date"] {
+      width: calc(100% - 20px);
+      padding: 10px;
+      margin: 8px 0;
+      border: 1px solid #ccd6e3;
+      border-radius: 8px;
+      background: var(--input-bg);
+      color: var(--text-dark);
+      font-size: 14px;
+    }
+    .tracking-container button {
+      width: 100%;
+      padding: 12px;
+      margin: 10px 0;
+      border: none;
+      border-radius: 8px;
+      background: linear-gradient(to right, var(--primary-start), var(--primary-end));
+      color: var(--text-light);
+      font-size: 16px;
+      font-weight: bold;
+      cursor: pointer;
+      transition: background 0.3s ease, transform 0.2s ease;
+    }
+    .tracking-container button:hover {
+      background: var(--btn-hover);
+      transform: translateY(-2px);
+    }
+    .status {
+      margin-top: 16px;
+      font-weight: bold;
+      color: green;
+    }
+    #addChildForm {
+      background: #fff;
+      padding: 16px;
+      border-radius: 8px;
+      margin-top: 12px;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+    }
+    #addChildMsg {
+      color: var(--success-green);
+      font-size: 13px;
+      margin-top: 8px;
+      min-height: 1em;
+    }
+  </style>
+</head>
+<body>
+  <div class="tracking-container">
+    <h2>📍 لوحة التتبع</h2>
+
+    <label for="childName">أدخل اسم الطفل:</label>
+    <input type="text" id="childName" placeholder="اسم الطفل" />
+
+    <button id="trackToggle" onclick="startTracking()">🔄 بدء التتبع</button>
+    <button id="addChildButton" onclick="toggleAddChildForm()">➕ إضافة طفل</button>
+
+    <div id="addChildForm" style="display:none;">
+      <h3>إضافة طفل جديد</h3>
+      <input type="text" id="newChildName" placeholder="اسم الطفل">
+      <input type="number" id="newChildAge" placeholder="عمر الطفل">
+      <button onclick="addChild()">إضافة</button>
+      <p id="addChildMsg"></p>
+    </div>
+
+    <p id="status" class="status">📡 لم يبدأ التتبع بعد</p>
+  </div>
+
+  <script>
+    let tracking = null;
+    window.childrenList = [];
+
+    fetch('http://localhost:3000/children')
+      .then(res => res.json())
+      .then(children => window.childrenList = children);
+
+    function startTracking() {
+      const childName = document.getElementById('childName').value.trim();
+      const status = document.getElementById('status');
+      if (!childName) return alert('يرجى إدخال اسم الطفل');
+      const child = window.childrenList.find(c => c.name === childName);
+      if (!child) return alert('الطفل غير موجود');
+
+      if (!navigator.geolocation) {
+        status.textContent = "❌ المتصفح لا يدعم تحديد الموقع";
+        return;
+      }
+
+      navigator.geolocation.getCurrentPosition(position => {
+        const lat = position.coords.latitude;
+        const lng = position.coords.longitude;
+
+        fetch('http://localhost:3000/update-location', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ child_id: child.id, lat, lng })
+        });
+
+        status.textContent = "✅ يتم التتبع الآن...";
+        tracking = setInterval(() => {
+          navigator.geolocation.getCurrentPosition(pos => {
+            const lat = pos.coords.latitude, lng = pos.coords.longitude;
+            fetch('http://localhost:3000/update-location', {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({ child_id: child.id, lat, lng })
+            })
+              .then(() => status.textContent = `📍 تم الإرسال: ${lat.toFixed(5)}, ${lng.toFixed(5)}`)
+              .catch(() => status.textContent = "❌ فشل إرسال الموقع");
+          });
+        }, 5000);
+
+        window.location.href = 'map.html?childId=' + child.id;
+      }, err => {
+        status.textContent = err.code === 1 ? "🚫 لم يسمح بالموقع" : "⚠️ تعذر الحصول على الموقع";
+      });
+    }
+
+    function toggleAddChildForm() {
+      const f = document.getElementById('addChildForm');
+      f.style.display = f.style.display === 'none' ? 'block' : 'none';
+      document.getElementById('addChildMsg').textContent = '';
+    }
+
+    function addChild() {
+      const name = document.getElementById('newChildName').value;
+      const age  = document.getElementById('newChildAge').value;
+      const msg  = document.getElementById('addChildMsg');
+      if (!name || !age) return alert('يرجى ملء جميع الحقول');
+
+      fetch('http://localhost:3000/add-child', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ name, age })
+      })
+        .then(r => r.json())
+        .then(resp => {
+          if (resp.success) {
+            msg.textContent = '✅ تم إضافة الطفل بنجاح';
+            msg.style.color = 'var(--success-green)';
+            window.childrenList.push({ id: resp.insertId || Date.now(), name, age });
+          } else {
+            msg.textContent = '❌ فشل إضافة الطفل';
+            msg.style.color = 'red';
+          }
+        })
+        .catch(() => {
+          msg.textContent = '❌ حدث خطأ أثناء الإضافة';
+          msg.style.color = 'red';
+        });
+    }
+  </script>
+</body>
+</html>

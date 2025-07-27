@@ -1,0 +1,136 @@
+:root {
+  --bg-color: #f4f6fc;
+  --box-bg: rgba(255, 255, 255, 0.1);
+  --text-color: #fff;
+  --input-bg: rgba(255, 255, 255, 0.15);
+  --table-border: rgba(255, 255, 255, 0.2);
+}
+
+body {
+  font-family: 'Segoe UI', sans-serif;
+  background: linear-gradient(to right, #667eea, #764ba2);
+  margin: 0;
+  padding: 0;
+  color: var(--text-color);
+  height: 100vh;
+  overflow: hidden;
+}
+
+
+.container {
+  padding: 0;
+  max-width: 100%;
+  margin: 0;
+  height: 100vh;
+}
+
+.flex-container {
+  display: flex;
+  flex-direction: row-reverse;
+  gap: 0;
+  height: 100%;
+}
+
+#map {
+  height: 100%;
+  width: 100%;
+  flex: 2;
+  border-radius: 0;
+  box-shadow: none;
+}
+
+.controls {
+  flex: 1;
+  max-width: 400px;
+  height: 100%;
+  overflow-y: auto;
+  padding: 20px;
+  background: var(--box-bg);
+  backdrop-filter: blur(10px);
+  color: var(--text-color);
+}
+
+
+h2, h3 {
+  margin-bottom: 20px;
+  color: var(--text-color);
+  text-align: center;
+}
+
+
+.controls label {
+  font-weight: bold;
+  margin-top: 10px;
+  display: block;
+  text-align: right;
+}
+
+.controls input,
+.controls select {
+  width: 100%;
+  padding: 10px;
+  margin-top: 5px;
+  margin-bottom: 15px;
+  border-radius: 10px;
+  border: none;
+  background-color: var(--input-bg);
+  color: var(--text-color);
+}
+
+.controls input::placeholder {
+  color: #ddd;
+}
+
+
+button {
+  background: linear-gradient(to right, #43cea2, #185a9d);
+  color: white;
+  border: none;
+  padding: 12px;
+  margin-top: 10px;
+  width: 100%;
+  border-radius: 10px;
+  font-size: 15px;
+  font-weight: bold;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+button:hover {
+  background: linear-gradient(to right, #2bc0e4, #eaecc6);
+  color: #333;
+}
+
+
+table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-top: 15px;
+  font-size: 14px;
+}
+
+th, td {
+  border: 1px solid var(--table-border);
+  padding: 8px;
+  text-align: center;
+  color: var(--text-color);
+}
+
+th {
+  background-color: rgba(255, 255, 255, 0.2);
+}
+
+
+.logo-container {
+  display: flex; 
+  align-items: center; 
+}
+
+.logo { 
+  width: 50px; 
+  margin-right: 5px;}
+
+h2 {
+  color: #333;
+  font-size: 24px; 
+}

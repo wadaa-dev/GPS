@@ -1,0 +1,132 @@
+<!DOCTYPE html>
+<html lang="ar">
+<head>
+  <meta charset="UTF-8" />
+  <title>تسجيل الدخول</title>
+  <link rel="stylesheet" href="style.css" />
+  <style>
+    body {
+      font-family: sans-serif;
+      margin: 0;
+      padding: 0;
+      background: #f0f0f0;
+      height: 100vh;
+      display: flex;
+      flex-direction: column;
+    }
+    h2 {
+      text-align: center;
+      margin: 10px 0;
+    }
+    .form-container {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      flex: 1;
+      flex-direction: column;
+      padding: 20px;
+    }
+    .form-container input {
+      margin: 10px;
+      padding: 10px;
+      width: 300px;
+      font-size: 16px;
+    }
+    .form-container button {
+      padding: 10px;
+      width: 320px;
+      background-color: #4CAF50;
+      color: white;
+      font-size: 16px;
+      border: none;
+      cursor: pointer;
+    }
+    .form-container button:hover {
+      background-color: #45a049;
+    }
+    .register-container {
+      display: none;
+    }
+  </style>
+</head>
+<body>
+  <h2>تسجيل الدخول</h2>
+  <div class="form-container">
+    <div id="loginForm" class="login-form">
+      <input type="text" id="username" placeholder="اسم المستخدم" />
+      <input type="password" id="password" placeholder="كلمة المرور" />
+      <button type="button" id="loginBtn">تسجيل الدخول</button>
+      <p>لا تملك حساب؟ <button id="registerBtn">إنشاء حساب جديد</button></p>
+    </div>
+
+    <div id="registerForm" class="register-container">
+      <input type="text" id="registerUsername" placeholder="اسم المستخدم" />
+      <input type="password" id="registerPassword" placeholder="كلمة المرور" />
+      <button type="button" id="createAccountBtn">إنشاء حساب</button>
+      <button type="button" id="cancelRegisterBtn">إلغاء</button>
+    </div>
+  </div>
+
+  <script>
+    const loginForm = document.getElementById('loginForm');
+    const registerForm = document.getElementById('registerForm');
+    const registerBtn = document.getElementById('registerBtn');
+    const createAccountBtn = document.getElementById('createAccountBtn');
+    const cancelRegisterBtn = document.getElementById('cancelRegisterBtn');
+    const loginBtn = document.getElementById('loginBtn');
+
+    registerBtn.addEventListener('click', () => {
+      loginForm.style.display = 'none';
+      registerForm.style.display = 'block';
+    });
+
+    cancelRegisterBtn.addEventListener('click', () => {
+      registerForm.style.display = 'none';
+      loginForm.style.display = 'block';
+    });
+
+    createAccountBtn.addEventListener('click', () => {
+      const username = document.getElementById('registerUsername').value;
+      const password = document.getElementById('registerPassword').value;
+
+      fetch('/register', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ username, password })
+      })
+      .then(response => response.json())
+      .then(data => {
+        if (data.success) {
+          alert('تم إنشاء الحساب بنجاح');
+          registerForm.style.display = 'none';
+          loginForm.style.display = 'block';
+        } else {
+          alert('المستخدم موجود بالفعل');
+        }
+      })
+      .catch(error => console.error('حدث خطأ:', error));
+    });
+
+    loginBtn.addEventListener('click', () => {
+      const username = document.getElementById('username').value;
+      const password = document.getElementById('password').value;
+
+      fetch('/login', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ username, password })
+      })
+      .then(response => response.json())
+      .then(data => {
+        if (data.success) {
+          alert('تم تسجيل الدخول');
+          window.location.href = '/dashboard.html';
+        } else {
+          alert('بيانات الدخول غير صحيحة');
+        }
+      })
+      .catch(error => console.error('حدث خطأ:', error));
+    });
+  </script>
+</body>
+</html>

@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html lang="ar">
+<head>
+  <meta charset="UTF-8">
+  <title>اختبار الموقع</title>
+</head>
+<body style="text-align:center;padding-top:40px;font-family:sans-serif">
+  <h2>اختبار الموقع</h2>
+  <p id="output">جارٍ تحديد الموقع...</p>
+
+  <script>
+    const output = document.getElementById('output');
+
+    if ("geolocation" in navigator) {
+      navigator.geolocation.getCurrentPosition(
+        (pos) => {
+          output.textContent = "✅ الموقع: " + pos.coords.latitude.toFixed(5) + ", " + pos.coords.longitude.toFixed(5);
+        },
+        (err) => {
+          if (err.code === 1) {
+            output.textContent = "🚫 تم رفض الإذن. الرجاء تفعيل الموقع من المتصفح.";
+          } else {
+            output.textContent = "⚠️ تعذر تحديد الموقع.";
+          }
+        }
+      );
+    } else {
+      output.textContent = "❌ المتصفح لا يدعم الموقع الجغرافي.";
+    }
+  </script>
+</body>
+</html>

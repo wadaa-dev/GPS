@@ -18,6 +18,6 @@
 
 - **Frontend:** HTML, CSS, JavaScript
 - **الخريطة:** Leaflet
-- **Backend:** Node.js / Express أو Python / Flask
+- **Backend:** Node.js / Express 
 - **قاعدة البيانات:** MySQL
 - **نظام المواقع:** GPS من الهاتف
